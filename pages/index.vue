@@ -4,11 +4,7 @@ import 'chartjs-adapter-moment';
 
 Chart.register(...registerables);
 
-//글로벌 설정.
-//라인 두께 지정
 Chart.defaults.elements.line.borderWidth = 1;
-
-//포인트 스타일 숨김.
 Chart.defaults.elements.point.radius=0;
 Chart.defaults.elements.point.hoverBorderWidth=1;
 Chart.defaults.elements.point.hoverRadius = 3;
