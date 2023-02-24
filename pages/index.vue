@@ -4,16 +4,34 @@ import 'chartjs-adapter-moment';
 
 Chart.register(...registerables);
 
-const SLOT_LENGTH = 12;
+//글로벌 설정.
+//라인 두께 지정
+Chart.defaults.elements.line.borderWidth = 1;
+
+//포인트 스타일 숨김.
+Chart.defaults.elements.point.radius=0;
+Chart.defaults.elements.point.hoverBorderWidth=1;
+Chart.defaults.elements.point.hoverRadius = 3;
+// Chart.defaults.elements.point.hoverBackgroundColor=CHART_COLORS.blue
+Chart.defaults.elements.point.borderWidth=1;
+// Chart.defaults.elements.point.backgroundColor=Chart.defaults.backgroundColor;
+
+Chart.defaults.elements.bar.borderRadius=6;
+
+
+const SLOT_LENGTH = 13;
 
 const DATASETS_LENGTH = 20;
 
-const MINUTE = 5
+const MINUTE = 10;
+
+
+const getRandom = (min:number, max:number) => Math.floor((Math.random() * (max - min + 1)) + min);
 
 const getId = (i:number) => { return `chart-${i}`};
 const getSeriesId = (i:number) => { return `series-${i}`};
 
-const POINT_COUNT = MINUTE == 5 ? 150 : 300;
+const POINT_COUNT = (MINUTE === 10) ? 300 : 150;
 
 const initMax = new Date().getTime();
 const initMin = initMax - (1000 * 60 * MINUTE);
@@ -33,7 +51,7 @@ const datasets:any[] = (()=>{
                 for (let index = 0; index < POINT_COUNT; index++) {
                     points.push({
                         x : min += 2000,
-                        y : Math.round( Math.random() * 1000 )
+                        y : getRandom(300, 500)
                     });
                     
                 }
@@ -64,6 +82,9 @@ const createChart = function(element:HTMLCanvasElement | null) {
         options: {
             animation: false,  // disable animations
             plugins:{
+                legend:{
+                    display:false
+                },
                 tooltip: {
                     enabled: false
                 }
@@ -84,13 +105,14 @@ const createChart = function(element:HTMLCanvasElement | null) {
                         unit: 'minute', // year, hour, minute, second
                     },
                     ticks: {
-                        stepSize: MINUTE == 5 ? 1: 2
+                        stepSize: MINUTE == 10 ? 2: 1
                     },
                     min: initMin,
                     max: initMax
                 },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    max:1000
                 }
             }
         }
@@ -128,28 +150,87 @@ const addData = (chart:Chart) => {
 
         data.datasets[i].data.push({
             x : new Date().getTime(),
-            y : Math.round( Math.random() * 1000 )
+            y : getRandom(300, 500)
         });
     }
 
 };
 
-function updateScales(chart:Chart) {
 
-    const max = new Date().getTime();
-    const min = max- (1000 * 60 * MINUTE);
+const showAllSeries = () => {
 
-    chart.options.scales = {
-        x: {
-            min: min,
-            max: max
+    const chartIds = charts.keys();
+
+    for ( let chartId of chartIds ) {
+        
+        const chart = charts.get(chartId);
+
+        if(!chart){
+            continue;
         }
-    };
-    
-    chart.update();
-}
 
-var fps = 60;
+        const datasetsLength = chart.data.datasets.length;
+
+        for (let i = 0; i < datasetsLength; i++) {
+            chart.show(i);
+        }
+    }
+};
+
+const hideAllSeries = () => {
+
+    const chartIds = charts.keys();
+
+    for ( let chartId of chartIds ) {
+        
+        const chart = charts.get(chartId);
+
+        if(!chart){
+            continue;
+        }
+
+        const datasetsLength = chart.data.datasets.length;
+
+        for (let i = 0; i < datasetsLength; i++) {
+            chart.hide(i);
+        }
+    }
+};
+
+const showSeries = (index:number) => {
+
+    const chartIds = charts.keys();
+
+    for ( let chartId of chartIds ) {
+        
+        const chart = charts.get(chartId);
+
+        if(!chart){
+            continue;
+        }
+
+        chart.show(index);
+
+    }
+};
+
+const hideSeries = (index:number) => {
+
+    const chartIds = charts.keys();
+
+    for ( let chartId of chartIds ) {
+        
+        const chart = charts.get(chartId);
+
+        if(!chart){
+            continue;
+        }
+        
+        chart.hide(index);
+
+    }
+};
+
 var now;
 var then = Date.now();
 var interval = 2000;
@@ -162,7 +243,7 @@ const animate = function() {
     
     
     if (elapsed < interval) {
-        requestAnimationFrame(animate.bind(window));
+        window.requestAnimationFrame(animate.bind(window));
         return;
     }
 
@@ -193,44 +274,29 @@ const animate = function() {
 
     }
 
-    requestAnimationFrame(animate.bind(window));
+    window.requestAnimationFrame(animate.bind(window));
 
 }
 
 animate();
 
-// setInterval(()=>{
-
-//     const chartIds = charts.keys();
-//     for ( let chartId of chartIds ) {
-        
-//         const chart = charts.get(chartId);
-
-//         if(!chart){
-//             continue;
-//         }
-
-//         const max = new Date().getTime();
-//         const min = max - (1000 * 60 * MINUTE);
-
-//         const scales = chart.options.scales;
-
-//         if(scales){
-//             const x:any = scales['x'];
-//             x.min = min;
-//             x.max = max;
-//         }
-
-//         addData(chart);
-//         chart.update('none')
-
-//     }
-
-
-// }, 2000);
-
 </script>
 <template>
+    <div class="row">
+        <button class="btn btn-sm btn-primary mb-1"
+            @click="showAllSeries()"
+        >Show All Series</button>
+        <button class="btn btn-sm btn-primary mb-1"
+            @click="hideAllSeries()"
+        >Hide All Series</button>
+        <button class="btn btn-sm btn-primary mb-1"
+            @click="showSeries(3)"
+        >Show Series</button>
+        <button class="btn btn-sm btn-primary mb-1"
+            @click="hideSeries(3)"
+        >Hide Series</button>
+
+    </div>
 
     <div class="row">
 
