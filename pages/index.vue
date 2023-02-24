@@ -21,6 +21,7 @@ const DATASETS_LENGTH = 20;
 
 const MINUTE = 10;
 
+const charts = new Map<string, Chart | null>();
 
 const getRandom = (min:number, max:number) => Math.floor((Math.random() * (max - min + 1)) + min);
 
@@ -82,7 +83,7 @@ const createChart = function(element:HTMLCanvasElement | null) {
                     display:false
                 },
                 tooltip: {
-                    enabled: false
+                    enabled: true
                 }
             },
             scales: {
@@ -115,16 +116,7 @@ const createChart = function(element:HTMLCanvasElement | null) {
     });
 }
 
-const charts = new Map<string, Chart | null>();
 
-onMounted(() => {
-
-    for (let i = 0; i < SLOT_LENGTH; i++) {
-        const id = getId(i);
-        const element = document.querySelector<HTMLCanvasElement>(`#${id}`);
-        charts.set(id, createChart(element));
-    }
-});
 
 
 const addData = (chart:Chart) => {
@@ -236,7 +228,8 @@ const animate = function() {
     
     now = Date.now();
     elapsed = now - then;
-    
+
+
     
     if (elapsed < interval) {
         window.requestAnimationFrame(animate.bind(window));
@@ -263,10 +256,14 @@ const animate = function() {
             const x:any = scales['x'];
             x.min = min;
             x.max = max;
+
+            chart.render();
+
+            console.log("min: ", new Date(min), 'max: ', new Date(max));
         }
 
         addData(chart);
-        chart.update('none')
+        chart.update('none');
 
     }
 
@@ -274,7 +271,19 @@ const animate = function() {
 
 }
 
-animate();
+
+onMounted(() => {
+
+    for (let i = 0; i < SLOT_LENGTH; i++) {
+        const id = getId(i);
+        const element = document.querySelector<HTMLCanvasElement>(`#${id}`);
+        charts.set(id, createChart(element));
+    }
+
+    animate();
+
+});
+
 
 </script>
 <template>
