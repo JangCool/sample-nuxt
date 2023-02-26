@@ -257,8 +257,6 @@ const animate = function() {
             x.min = min;
             x.max = max;
 
-            chart.render();
-
             console.log("min: ", new Date(min), 'max: ', new Date(max));
         }
 
