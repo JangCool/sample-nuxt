@@ -89,7 +89,7 @@ const createChart = function(element:HTMLCanvasElement | null) {
             scales: {
                 x: {
                     //@ts-ignore
-                    type: 'timeseries',
+                    type: 'time',
                     time : {
                         parser: 'MM/DD/YYYY HH:mm:ss',
                         tooltipFormat: 'HH:mm:ss',
